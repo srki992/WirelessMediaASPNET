@@ -1,0 +1,195 @@
+﻿@model Zadatak.Models.ArtikalViewModel
+@{
+    Layout = null;
+}
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+
+
+<div class="container" style="margin-top:3%">
+    <a href="#" class="btn btn-info" onclick="AddNewArtikal(0)">Dodaj novi artikal</a> <br /><br />
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Artikal ID</th>
+                <th>Artikal Naziv</th>
+                <th>Opis</th>
+                <th>Kategorija</th>
+                <th>Proizvodjac</th>
+                <th>Dobavljac</th>
+                <th>Cena</th>
+                <th>Izmeni</th>
+                <th>Obrisi</th>
+            </tr>
+        </thead>
+        <tbody id="SetArtikalList">
+            <tr id="LoadingStatus" style="color:red"></tr>
+        </tbody>
+    </table>
+
+    @*Create a popup for add and edit record*@
+
+    <div class="modal fade" id="MyModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<a href="#" class="close" data-dissmiss="modal">&times;</a>*@
+                    <a href="#" class="close" data-dismiss="modal" aria-label="close">&times;</a>
+                    <h4 id="ModalTitle"></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="form">
+                        <fieldset id="SubmitForm">
+                            @Html.HiddenFor(m => m.ArtikalID, new { @id = "ArtId" })
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.ArtikalNaziv, new { @id = "ArtNaz", @class = "form-control", @placeholder = "Naziv*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Opis, new { @id = "Opis", @class = "form-control", @placeholder = "Opis*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Kategorija, new { @id = "Kategorija", @class = "form-control", @placeholder = "Kategorija*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Proizvodjac, new { @id = "Proizvodjac", @class = "form-control", @placeholder = "Proizvodjac*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Dobavljac, new { @id = "Dobavljac", @class = "form-control", @placeholder = "Dobavljac*" })
+                            </div>
+                            <div class="form-group">
+                                @Html.TextBoxFor(m => m.Cena, new { @id = "Cena", @class = "form-control", @placeholder = "Cena*" })
+                            </div>
+
+                            <div class="form-group">
+                                <a href="#" class="btn btn-block btn-danger" id="SaveArtikalRecord">Zapamti</a>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*Create a popup for delete record*@
+
+    <div class="modal fade" id="DeleteConfirmation">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @*<a href="#" class="close" data-dissmiss="modal">&times;</a>*@
+                    <a href="#" class="close" data-dismiss="modal" aria-label="close">&times;</a>
+                    <h4>Izbrisi</h4> 
+                </div>
+                <div class="modal-body">
+                    <h4>Da li ste sigurni? Da zelite da izbrisete ovaj red.</h4>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-primary" data-dissmiss="modal" onclick="ZatvoriFormu()">Odustani</a>
+                    <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Potvrdi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+         
+
+</div>
+
+<script>
+    $("#LoadingStatus").html("Loading....");
+    $.get("/Home/GetArtikalList", null, DataBind);
+    function DataBind(ArtikalList) {
+        var SetData = $("#SetArtikalList");
+        for (var i = 0; i < ArtikalList.length; i++) {
+            var Data = "<tr class='row_" + ArtikalList[i].ArtikalID + "'>" +
+                        "<td>" + ArtikalList[i].ArtikalID + "</td>" +
+                        "<td>" + ArtikalList[i].ArtikalNaziv + "</td>" +
+                        "<td>" + ArtikalList[i].Opis + "</td>" +
+                        "<td>" + ArtikalList[i].Kategorija + "</td>" +
+                        "<td>" + ArtikalList[i].Proizvodjac + "</td>" +
+                        "<td>" + ArtikalList[i].Dobavljac + "</td>" +
+                        "<td>" + ArtikalList[i].Cena + "</td>" +
+                "<td>" + "<a href='#' class='btn btn-warning' onclick='EditArtikalRecord(" + ArtikalList[i].ArtikalID + ")'> <span class='glyphicon glyphicon-edit'></span></a>" + "</td>" +
+                "<td>" + "<a href='#' class='btn btn-danger' onclick='DeleteArtikalRecord(" + ArtikalList[i].ArtikalID + ")'> <span class='glyphicon glyphicon-trash'></span></a>" + "</td>" +
+                "</tr>";
+            SetData.append(Data);
+            $("#LoadingStatus").html(" ");
+        }
+    }
+
+
+
+    //Show the Popup Modal For Add New Artikal
+    function AddNewArtikal(ArtikalID) {
+        $("#form")[0].reset();
+        $("#ModalTitle").html("Dodajte novi artikal");
+        $("#MyModal").modal();
+
+    }
+
+
+    //Show The Popup Modal For Edit Artikal Record
+    function EditArtikalRecord(ArtikalID) {
+        var url = "/Home/GetArtikalById?ArtikalID=" + ArtikalID;
+        $("#ModalTitle").html("Izmenite artikal");
+        $("#MyModal").modal();
+
+        //Receive Data From Contoller Then Show the data in input box for edit data
+        $.ajax({
+            type: "GET",
+            url: url,
+            success: function (data) {
+                var obj = JSON.parse(data);
+                $("#ArtId").val(obj.ArtikalID);
+                $("#ArtNaz").val(obj.ArtikalNaziv);
+                $("#Opis").val(obj.Opis);
+                $("#Kategorija").val(obj.Kategorija);
+                $("#Proizvodjac").val(obj.Proizvodjac);
+                $("#Dobavljac").val(obj.Dobavljac);
+                $("#Cena").val(obj.Cena);
+            }
+
+        })
+    }
+
+    $("#SaveArtikalRecord").click(function () {
+        var data = $("#SubmitForm").serialize();
+        $.ajax({
+            type: "Post",
+            url: "/Home/SaveDataInDatabase",
+            data: data,
+            success: function (result) {
+                alert("Uspesno.");
+                window.location.href = "/Home/index";
+                $("#MyModal").modal("hide");
+            }
+        })
+    })
+
+
+    //Show the popup modal for delete confirmation
+    function DeleteArtikalRecord(ArtikalID) {
+        $("#ArtId").val(ArtikalID);
+        $("#DeleteConfirmation").modal("show");
+    }
+
+    function ConfirmDelete() {
+        var ArtId = $("#ArtId").val();
+        $.ajax({
+            type: "POST",
+            url: "/Home/DeleteArtikalRecord?ArtikalID=" + ArtId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+                $(".row_" + ArtId).remove();
+            }
+        })
+    }
+
+
+    function ZatvoriFormu() {
+        $("#DeleteConfirmation").modal("hide");
+
+    }
+</script>

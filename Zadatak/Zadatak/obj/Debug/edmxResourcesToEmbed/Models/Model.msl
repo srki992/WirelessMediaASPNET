@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="WirelessZadatakModelStoreContainer" CdmEntityContainer="WirelessZadatakEntities">
+    <EntitySetMapping Name="tblArtikals">
+      <EntityTypeMapping TypeName="WirelessZadatakModel.tblArtikal">
+        <MappingFragment StoreEntitySet="tblArtikal">
+          <ScalarProperty Name="ArtikalID" ColumnName="ArtikalID" />
+          <ScalarProperty Name="ArtikalNaziv" ColumnName="ArtikalNaziv" />
+          <ScalarProperty Name="Opis" ColumnName="Opis" />
+          <ScalarProperty Name="Kategorija" ColumnName="Kategorija" />
+          <ScalarProperty Name="Proizvodjac" ColumnName="Proizvodjac" />
+          <ScalarProperty Name="Dobavljac" ColumnName="Dobavljac" />
+          <ScalarProperty Name="Cena" ColumnName="Cena" />
+          <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
